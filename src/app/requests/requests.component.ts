@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpHeaders, HttpParams} from "@angular/common/http";
 import {Item} from "../item";
 
 @Component({
@@ -9,7 +9,7 @@ import {Item} from "../item";
 })
 export class RequestsComponent implements OnInit {
 
-  item: Item = new Item(29, 'MyName');
+  item: Item = new Item(null, null);
   items!: Item[];
   itemsUrl = '/Items';
 
@@ -21,15 +21,33 @@ export class RequestsComponent implements OnInit {
   }
 
   getData(): void {
-    this.http.get<Item[]>(this.itemsUrl).subscribe(
+    const url = this.itemsUrl
+    const headers = new HttpHeaders().set('Content-Type', 'application/json');
+    let params = new HttpParams();
+
+    if (this.item.id) {
+      params = params.set('id', `${this.item.id}`);
+    }
+
+    if (this.item.name) {
+      params = params.set('name', `${this.item.name}`);
+    }
+
+    const options = {headers, params};
+
+    this.http.get<Item[]>(url, options).subscribe(
       res => this.items = res,
       err => console.log(err)
     )
   }
 
   postData(): void {
-    if (!this.checkInputs(this.item)) return
-    this.http.post<Item>(this.itemsUrl, this.item).subscribe(
+    const url = this.itemsUrl;
+    const data = this.item;
+    const headers = new HttpHeaders({'Content-Type': 'application/json'});
+    const options = {headers};
+
+    this.http.post<Item>(url, data, options).subscribe(
       res => this.items.push(res),
       err => console.log(err)
     )
@@ -41,14 +59,13 @@ export class RequestsComponent implements OnInit {
   }
 
   private checkInputs({id, name}: any): boolean {
-
-
+    // if (!this.checkInputs(this.item)) return
     if (!id || !name) {
       alert('Поля ID или Name не заполненны');
       return false;
     }
 
-    if (id <= this.items[this.items.length - 1].id) {
+    if (this.items && id <= (this.items as any)[this.items.length - 1].id) {
       alert('Введенный ID уже существует');
       return false;
     }

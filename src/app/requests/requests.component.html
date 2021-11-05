@@ -1,0 +1,13 @@
+<ul>
+  <li *ngFor="let item of items">
+    {{item.id}} --- {{item.name}}
+  </li>
+</ul>
+
+<div>
+  <div><label>ID: <input [(ngModel)]="item.id" placeholder="ID..." type="text"></label></div>
+  <div><label>Name: <input [(ngModel)]="item.name" placeholder="Name..." type="text"></label></div>
+</div>
+
+<button (click)="postData()">Save</button>
+<button (click)="clearAndGet()">Reread data</button>
